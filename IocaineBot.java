@@ -32,12 +32,11 @@ public class IocaineBot implements RoShamBot {
         strats.put("p2", 0);
         strats.put("p3", 0);
         strats.put("p4", 0);
-        strats.put("p4", 0);
-        strats.put("p_prime_0", 0);
-        strats.put("p_prime_1", 0);
-        strats.put("p_prime_2", 0);
-        strats.put("p_prime_3", 0);
-        strats.put("p_prime_4", 0);
+        // strats.put("p_prime_0", 0);
+        // strats.put("p_prime_1", 0);
+        // strats.put("p_prime_2", 0);
+        // strats.put("p_prime_3", 0);
+        // strats.put("p_prime_4", 0);
 
         opp_memory = new ArrayList<Action>();
         own_memory = new ArrayList<Action>();
@@ -50,56 +49,93 @@ public class IocaineBot implements RoShamBot {
     }
 
     Action p0(Action a) { // Beat opponents move
-        return beaten_by.get(a).get((int) Math.random() * beaten_by.size());
+        // return beaten_by.get(a).get((int) Math.random() * beaten_by.size());
+        return beaten_by.get(a).get(0);
     }
 
     Action p1(Action a) { // Beat p0
-        return beaten_by.get(p0(a)).get((int) Math.random() * beaten_by.size());
+        Action target1 = beaten_by.get(p0(a)).get(0);
+        Action target2 = beaten_by.get(p0(a)).get(1);
+        List<Action> beatTarget1 = beaten_by.get(target1);
+        List<Action> beatTarget2 = beaten_by.get(target2);
+        for (Action action : beatTarget1) {
+            if (beatTarget2.contains(action)) {
+                return action;
+            }
+        }
+        return a;
     }
 
     Action p2(Action a) { // Beat p1
-        return beats.get(p1(a)).get((int) Math.random() * beaten_by.size());
+        Action target1 = beaten_by.get(p1(a)).get(0);
+        Action target2 = beaten_by.get(p1(a)).get(1);
+        List<Action> beatTarget1 = beaten_by.get(target1);
+        List<Action> beatTarget2 = beaten_by.get(target2);
+        for (Action action : beatTarget1) {
+            if (beatTarget2.contains(action)) {
+                return action;
+            }
+        }
+        return a;
     }
 
     Action p3(Action a) { // Beat p2
-        return beats.get(p2(a)).get((int) Math.random() * beaten_by.size());
+        Action target1 = beaten_by.get(p2(a)).get(0);
+        Action target2 = beaten_by.get(p2(a)).get(1);
+        List<Action> beatTarget1 = beaten_by.get(target1);
+        List<Action> beatTarget2 = beaten_by.get(target2);
+        for (Action action : beatTarget1) {
+            if (beatTarget2.contains(action)) {
+                return action;
+            }
+        }
+        return a;
     }
 
     Action p4(Action a) { // Beat p3
-        return beats.get(p3(a)).get((int) Math.random() * beaten_by.size());
+        Action target1 = beaten_by.get(p3(a)).get(0);
+        Action target2 = beaten_by.get(p3(a)).get(1);
+        List<Action> beatTarget1 = beaten_by.get(target1);
+        List<Action> beatTarget2 = beaten_by.get(target2);
+        for (Action action : beatTarget1) {
+            if (beatTarget2.contains(action)) {
+                return action;
+            }
+        }
+        return a;
     }
 
-    // Implementing the P' strategies by considering the counter to what P
-    // strategies would play
-    Action p_prime_0(Action a) {
-        Action p0Move = p0(a);
-        List<Action> counters = beaten_by.get(p0Move);
-        return counters.get((int) (Math.random() * counters.size()));
-    }
+    // // Implementing the P' strategies by considering the counter to what P
+    // // strategies would play
+    // Action p_prime_0(Action a) {
+    // Action p0Move = p0(a);
+    // List<Action> counters = beaten_by.get(p0Move);
+    // return counters.get((int) (Math.random() * counters.size()));
+    // }
 
-    Action p_prime_1(Action a) {
-        Action p1Move = p1(a);
-        List<Action> counters = beaten_by.get(p1Move);
-        return counters.get((int) (Math.random() * counters.size()));
-    }
+    // Action p_prime_1(Action a) {
+    // Action p1Move = p1(a);
+    // List<Action> counters = beaten_by.get(p1Move);
+    // return counters.get((int) (Math.random() * counters.size()));
+    // }
 
-    Action p_prime_2(Action a) {
-        Action p2Move = p2(a);
-        List<Action> counters = beaten_by.get(p2Move);
-        return counters.get((int) (Math.random() * counters.size()));
-    }
+    // Action p_prime_2(Action a) {
+    // Action p2Move = p2(a);
+    // List<Action> counters = beaten_by.get(p2Move);
+    // return counters.get((int) (Math.random() * counters.size()));
+    // }
 
-    Action p_prime_3(Action a) {
-        Action p3Move = p3(a);
-        List<Action> counters = beaten_by.get(p3Move);
-        return counters.get((int) (Math.random() * counters.size()));
-    }
+    // Action p_prime_3(Action a) {
+    // Action p3Move = p3(a);
+    // List<Action> counters = beaten_by.get(p3Move);
+    // return counters.get((int) (Math.random() * counters.size()));
+    // }
 
-    Action p_prime_4(Action a) {
-        Action p4Move = p4(a);
-        List<Action> counters = beaten_by.get(p4Move);
-        return counters.get((int) (Math.random() * counters.size()));
-    }
+    // Action p_prime_4(Action a) {
+    // Action p4Move = p4(a);
+    // List<Action> counters = beaten_by.get(p4Move);
+    // return counters.get((int) (Math.random() * counters.size()));
+    // }
 
     private void updateStrategyScores(Action lastOpponentMove, Action strategyMove, String strategyName) {
         if (beats.get(strategyMove).contains(lastOpponentMove)) {
@@ -145,16 +181,16 @@ public class IocaineBot implements RoShamBot {
                 return p3(oppMode);
             case "p4":
                 return p4(oppMode);
-            case "p_prime_0":
-                return p_prime_0(oppMode);
-            case "p_prime_1":
-                return p_prime_1(oppMode);
-            case "p_prime_2":
-                return p_prime_2(oppMode);
-            case "p_prime_3":
-                return p_prime_3(oppMode);
-            case "p_prime_4":
-                return p_prime_4(oppMode);
+            // case "p_prime_0":
+            // return p_prime_0(oppMode);
+            // case "p_prime_1":
+            // return p_prime_1(oppMode);
+            // case "p_prime_2":
+            // return p_prime_2(oppMode);
+            // case "p_prime_3":
+            // return p_prime_3(oppMode);
+            // case "p_prime_4":
+            // return p_prime_4(oppMode);
             default:
                 // If it's not one of the known strategies, default to a random move
                 return Action.values()[(int) (Math.random() * Action.values().length)];
@@ -179,21 +215,25 @@ public class IocaineBot implements RoShamBot {
         Action p0Move = p0(oppMode);
         Action p1Move = p1(oppMode);
         Action p2Move = p2(oppMode);
-        Action p_prime_0Move = p_prime_0(oppMode);
-        Action p_prime_1Move = p_prime_1(oppMode);
-        Action p_prime_2Move = p_prime_2(oppMode);
-        Action p_prime_3Move = p_prime_3(oppMode);
-        Action p_prime_4Move = p_prime_4(oppMode);
+        Action p3Move = p3(oppMode);
+        Action p4Move = p4(oppMode);
+        // Action p_prime_0Move = p_prime_0(oppMode);
+        // Action p_prime_1Move = p_prime_1(oppMode);
+        // Action p_prime_2Move = p_prime_2(oppMode);
+        // Action p_prime_3Move = p_prime_3(oppMode);
+        // Action p_prime_4Move = p_prime_4(oppMode);
 
         // Update strategy scores
         updateStrategyScores(lastOpponentMove, p0Move, "p0");
         updateStrategyScores(lastOpponentMove, p1Move, "p1");
         updateStrategyScores(lastOpponentMove, p2Move, "p2");
-        updateStrategyScores(lastOpponentMove, p_prime_0Move, "p_prime_0");
-        updateStrategyScores(lastOpponentMove, p_prime_1Move, "p_prime_1");
-        updateStrategyScores(lastOpponentMove, p_prime_2Move, "p_prime_2");
-        updateStrategyScores(lastOpponentMove, p_prime_3Move, "p_prime_3");
-        updateStrategyScores(lastOpponentMove, p_prime_4Move, "p_prime_4");
+        updateStrategyScores(lastOpponentMove, p3Move, "p3");
+        updateStrategyScores(lastOpponentMove, p4Move, "p4");
+        // updateStrategyScores(lastOpponentMove, p_prime_0Move, "p_prime_0");
+        // updateStrategyScores(lastOpponentMove, p_prime_1Move, "p_prime_1");
+        // updateStrategyScores(lastOpponentMove, p_prime_2Move, "p_prime_2");
+        // updateStrategyScores(lastOpponentMove, p_prime_3Move, "p_prime_3");
+        // updateStrategyScores(lastOpponentMove, p_prime_4Move, "p_prime_4");
 
         // Select the best strategy
         String bestStrategy = selectBestStrategy();
@@ -222,5 +262,23 @@ public class IocaineBot implements RoShamBot {
             }
         }
         return mode;
+    }
+
+    public static void main(String[] args) {
+        IocaineBot bot = new IocaineBot();
+
+        // Simulate a series of opponent moves
+        Action[] opponentMoves = { Action.ROCK, Action.PAPER, Action.SCISSORS, Action.LIZARD, Action.SPOCK };
+
+        // Debugging the return values of p0 through p4 for each opponent move
+        for (Action move : opponentMoves) {
+            System.out.println("Opponent Move: " + move);
+            System.out.println("p0: " + bot.p0(move));
+            System.out.println("p1: " + bot.p1(move));
+            System.out.println("p2: " + bot.p2(move));
+            System.out.println("p3: " + bot.p3(move));
+            System.out.println("p4: " + bot.p4(move));
+            System.out.println();
+        }
     }
 }
