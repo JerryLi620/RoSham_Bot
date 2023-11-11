@@ -15,9 +15,9 @@ public class MasterBot implements RoShamBot {
     private List<Action> myMoveHistory;
     private List<Action> opponentMoveHistory;
     private Action lastOpponentMove = null;
-    public Map<String, Map<String, Integer>> scoreTable;
+    public Map<String, Map<String, Integer>> scoreTable; //TODO: Change to private later
 
-    private static final List<String> strategies = Arrays.asList("random", "ape", "rotation", "pi", "e", "frequency", "history", "pairHistory", "markov");
+    private static final List<String> strategies = Arrays.asList("random", "ape", "rotation", "frequency", "history", "pairHistory"); //match with implemented strategy methods
     private static final List<String> metastrategies = Arrays.asList("m0", "m1", "m2", "m3", "m4");
 
     private static final Map<Action, List<Action>> beats = new HashMap<>();
@@ -65,16 +65,6 @@ public class MasterBot implements RoShamBot {
 
     public List<Action> getOpponentMoveHistory() {
         return new ArrayList<>(opponentMoveHistory); // Copy to prevent external modification
-    }
-
-    private void initializeScoreTable() {
-        for (String strategy : strategies) {
-            Map<String, Integer> scores = new HashMap<>();
-            for (String metastrategy : metastrategies) {
-                scores.put(metastrategy, 0);
-            }
-            scoreTable.put(strategy, scores);
-        }
     }
 
     private Action getBotMove(String strategy, String metastrategy) {
@@ -128,9 +118,18 @@ public class MasterBot implements RoShamBot {
                 return randomAction();
         }
     }
-    
+
+    private void initializeScoreTable() {
+        for (String strategy : strategies) {
+            Map<String, Integer> scores = new HashMap<>();
+            for (String metastrategy : metastrategies) {
+                scores.put(metastrategy, 0);
+            }
+            scoreTable.put(strategy, scores);
+        }
+    }
+
     private void addScore(String strategy, String metastrategy, int points) {
-        
         Map<String, Integer> scores = scoreTable.get(strategy);
         if (scores != null) {
             int currentScore = scores.getOrDefault(metastrategy, 0);
@@ -138,7 +137,7 @@ public class MasterBot implements RoShamBot {
         }
     }
 
-    private void updateScoreTable() {
+    private void updateScoreTable() { //TODO: fix update method
         for (String strategy : strategies) {
             for (String metastrategy : metastrategies) {
                 Action botMove = getBotMove(strategy, metastrategy);
@@ -167,6 +166,16 @@ public class MasterBot implements RoShamBot {
 
 
 
+
+    private Action findCommonMove(List<Action> list1, List<Action> list2) {
+        for (Action commonAction : list1) {
+            if (list2.contains(commonAction)) {
+                return commonAction;
+            }
+        }
+        return null; // No common move found
+    }
+
     private Action m0(Action move) { 
         // Beat opponents predicted move naively
         return beatenBy.get(move).get(0); //May want to specify which move chosen
@@ -177,71 +186,54 @@ public class MasterBot implements RoShamBot {
         Action strategy = m0(move);
         Action oppResponse1 = beatenBy.get(strategy).get(0);
         Action oppResponse2 = beatenBy.get(strategy).get(1);
-
+    
         List<Action> beatOppResponse1 = beatenBy.get(oppResponse1);
         List<Action> beatOppResponse2 = beatenBy.get(oppResponse2);
-
-        // Check if there's a move that beats both target2 and target3
-        if (beatOppResponse1.containsAll(beatOppResponse2)) {
-            return beatOppResponse1.get(0); // Return the first move that beats both
-        }
-
-        // If no common move is found, return the original move
-        return move;
+    
+        Action commonMove = findCommonMove(beatOppResponse1, beatOppResponse2);
+    
+        // If a common move is found, return it; otherwise, return the original move
+        return (commonMove != null) ? commonMove : move;
     }
+    
 
     private Action m2(Action move) { 
-        // Beat m0's counter-strategy
         Action strategy = m1(move);
         Action oppResponse1 = beatenBy.get(strategy).get(0);
         Action oppResponse2 = beatenBy.get(strategy).get(1);
-
+    
         List<Action> beatOppResponse1 = beatenBy.get(oppResponse1);
         List<Action> beatOppResponse2 = beatenBy.get(oppResponse2);
-
-        // Check if there's a move that beats both target2 and target3
-        if (beatOppResponse1.containsAll(beatOppResponse2)) {
-            return beatOppResponse1.get(0); // Return the first move that beats both
-        }
-
-        // If no common move is found, return the original move
-        return move;
+    
+        Action commonMove = findCommonMove(beatOppResponse1, beatOppResponse2);
+    
+        return (commonMove != null) ? commonMove : move;
     }
 
     private Action m3(Action move) { 
-        // Beat m0's counter-strategy
         Action strategy = m2(move);
         Action oppResponse1 = beatenBy.get(strategy).get(0);
         Action oppResponse2 = beatenBy.get(strategy).get(1);
-
+    
         List<Action> beatOppResponse1 = beatenBy.get(oppResponse1);
         List<Action> beatOppResponse2 = beatenBy.get(oppResponse2);
-
-        // Check if there's a move that beats both target2 and target3
-        if (beatOppResponse1.containsAll(beatOppResponse2)) {
-            return beatOppResponse1.get(0); // Return the first move that beats both
-        }
-
-        // If no common move is found, return the original move
-        return move;
+    
+        Action commonMove = findCommonMove(beatOppResponse1, beatOppResponse2);
+    
+        return (commonMove != null) ? commonMove : move;
     }
 
     private Action m4(Action move) { 
-        // Beat m0's counter-strategy
         Action strategy = m3(move);
         Action oppResponse1 = beatenBy.get(strategy).get(0);
         Action oppResponse2 = beatenBy.get(strategy).get(1);
-
+    
         List<Action> beatOppResponse1 = beatenBy.get(oppResponse1);
         List<Action> beatOppResponse2 = beatenBy.get(oppResponse2);
-
-        // Check if there's a move that beats both target2 and target3
-        if (beatOppResponse1.containsAll(beatOppResponse2)) {
-            return beatOppResponse1.get(0); // Return the first move that beats both
-        }
-
-        // If no common move is found, return the original move
-        return move;
+    
+        Action commonMove = findCommonMove(beatOppResponse1, beatOppResponse2);
+    
+        return (commonMove != null) ? commonMove : move;
     }
 
 
@@ -328,19 +320,19 @@ public class MasterBot implements RoShamBot {
     }
 
     private Action historyMatching() {
-        int[] sequenceLengths = {10,9,8,7,6,5,4,3};
-    
+        int[] sequenceLengths = {10,9,8,7,6,5,4,3}; //Check longest sequence downwards
+        Map<List<Action>, Map<Action, Integer>> sequenceCounts = new HashMap<>();
+
         for (int length : sequenceLengths) {
-            if (opponentMoveHistory.size()-length >= length) {
+            if (opponentMoveHistory.size() >= length) {
                 List<Action> lastSequence = opponentMoveHistory.subList(opponentMoveHistory.size() - length, opponentMoveHistory.size());
-                Map<List<Action>, Map<Action, Integer>> sequenceCounts = new HashMap<>();
                 
                 // Iterate over all possible sequences of the specified length in the opponent's move history
-                for (int i = 0; i <= opponentMoveHistory.size() - length; i++) {
+                for (int i = 0; i < opponentMoveHistory.size() - length; i++) {
                     List<Action> sequence = opponentMoveHistory.subList(i, i + length);
                     
                     if (sequence.equals(lastSequence)) {
-                        Action nextMove = (i + length < opponentMoveHistory.size()) ? opponentMoveHistory.get(i + length) : null;
+                        Action nextMove = opponentMoveHistory.get(i + length);
     
                         // Update the count for the next move following the current sequence
                         sequenceCounts.computeIfAbsent(sequence, k -> new HashMap<>());
@@ -348,32 +340,32 @@ public class MasterBot implements RoShamBot {
                         nextMoveCounts.put(nextMove, nextMoveCounts.getOrDefault(nextMove, 0) + 1);
                     }
                 }
-    
-                // Find the most common next move for the last sequence
-                Map<Action, Integer> mostCommonNextMoveCounts = new HashMap<>();
-                for (Map<Action, Integer> counts : sequenceCounts.values()) {
-                    for (Map.Entry<Action, Integer> entry : counts.entrySet()) {
-                        Action nextMove = entry.getKey();
-                        int count = entry.getValue();
-                        mostCommonNextMoveCounts.put(nextMove, mostCommonNextMoveCounts.getOrDefault(nextMove, 0) + count);
-                    }
-                }
-    
-                // Find the most common next move
-                Action mostCommonNextMove = null;
-                int maxCount = 0;
-                for (Map.Entry<Action, Integer> entry : mostCommonNextMoveCounts.entrySet()) {
-                    int count = entry.getValue();
-                    if (count > maxCount) {
-                        mostCommonNextMove = entry.getKey();
-                        maxCount = count;
-                    }
-                }
-    
-                if (mostCommonNextMove != null) {
-                    return mostCommonNextMove;
-                }
             }
+        }
+
+        // Naively record total number of each move occurances corresponding to some match
+        Map<Action, Integer> mostCommonNextMoveCounts = new HashMap<>();
+        for (Map<Action, Integer> counts : sequenceCounts.values()) {
+            for (Map.Entry<Action, Integer> entry : counts.entrySet()) {
+                Action nextMove = entry.getKey();
+                int count = entry.getValue();
+                mostCommonNextMoveCounts.put(nextMove, mostCommonNextMoveCounts.getOrDefault(nextMove, 0) + count);
+            }
+        }
+        
+        // Find the most common next move
+        Action mostCommonNextMove = null;
+        int maxCount = 0;
+        for (Map.Entry<Action, Integer> entry : mostCommonNextMoveCounts.entrySet()) {
+            int count = entry.getValue();
+            if (count > maxCount) {
+                mostCommonNextMove = entry.getKey();
+                maxCount = count;
+            }
+        }
+
+        if (mostCommonNextMove != null) {
+            return mostCommonNextMove;
         }
     
         // If no history match is found, default to random move
@@ -381,7 +373,7 @@ public class MasterBot implements RoShamBot {
     }
 
     private Action pairHistory() {
-        int sequenceLength = 3; // Adjust the sequence length as needed
+        int sequenceLength = 3; // Adjust the sequence length
     
         if (opponentMoveHistory.size() >= sequenceLength && myMoveHistory.size() >= sequenceLength) {
             List<Action> lastOpponentSequence = opponentMoveHistory.subList(opponentMoveHistory.size() - sequenceLength, opponentMoveHistory.size());
@@ -482,7 +474,7 @@ public class MasterBot implements RoShamBot {
         }
         
         updateScoreTable();
-
+        
         Action nextMove = findBestMove();
         updateMyHistory(nextMove);
 
