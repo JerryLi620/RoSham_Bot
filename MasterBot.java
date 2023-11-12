@@ -10,18 +10,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.ArrayList;
 
-
 public class MasterBot implements RoShamBot {
 
-    //Instance variables to keep track of
+    // Instance variables to keep track of
     private List<Action> myMoveHistory;
     private List<Action> opponentMoveHistory;
     private Action lastOpponentMove = null;
     public Map<String, Map<String, Action>> recommendedMoves;
-    public Map<String, Map<String, Integer>> scoreTable; //TODO: Change to private later
+    public Map<String, Map<String, Integer>> scoreTable; // TODO: Change to private later
 
-    //Class variables
-    private static final List<String> strategies = Arrays.asList("random", "ape", "rotation", "frequency", "history", "pairHistory"); //match with implemented strategy methods
+    // Class variables
+    private static final List<String> strategies = Arrays.asList("random", "ape", "rotation", "frequency", "history",
+            "pairHistory"); // match with implemented strategy methods
     private static final List<String> metastrategies = Arrays.asList("m0", "m1", "m2", "m3", "m4");
 
     private static final Map<Action, List<Action>> beats = new HashMap<>();
@@ -51,8 +51,7 @@ public class MasterBot implements RoShamBot {
         initializeScoreTable();
     }
 
-
-    //General bot methods begin from here
+    // General bot methods begin from here
     private int getRoundsPlayed() {
         return (myMoveHistory != null) ? myMoveHistory.size() : 0;
     }
@@ -78,7 +77,7 @@ public class MasterBot implements RoShamBot {
     }
 
     public List<Action> getOpponentMoveHistory() {
-        return new ArrayList<>(opponentMoveHistory); 
+        return new ArrayList<>(opponentMoveHistory);
     }
 
     private Action getBotMove(String strategy, String metastrategy) {
@@ -151,11 +150,11 @@ public class MasterBot implements RoShamBot {
         }
     }
 
-    private void updateScoreTable() { //TODO: change scoring system to introduce locality
+    private void updateScoreTable() { // TODO: change scoring system to introduce locality
         for (String strategy : strategies) {
             for (String metastrategy : metastrategies) {
                 Action botMove = getRecommendedMove(strategy, metastrategy);
-    
+
                 if (beats.get(botMove).contains(lastOpponentMove)) {
                     // Bot wins against opponent's last move
                     addScore(strategy, metastrategy, 2);
@@ -178,8 +177,7 @@ public class MasterBot implements RoShamBot {
         return 0;
     }
 
-
-    //Metastrategy methods begin from here
+    // Metastrategy methods begin from here
     private Action findCommonMove(List<Action> list1, List<Action> list2) {
         for (Action commonAction : list1) {
             if (list2.contains(commonAction)) {
@@ -189,68 +187,66 @@ public class MasterBot implements RoShamBot {
         return null; // No common move found
     }
 
-    private Action m0(Action move) { 
+    private Action m0(Action move) {
         // Beat opponents predicted move naively
-        return beatenBy.get(move).get(0); //TODO: Break tie strategically
+        return beatenBy.get(move).get(0); // TODO: Break tie strategically
     }
 
-    private Action m1(Action move) { 
+    private Action m1(Action move) {
         // Beat m0's counter-strategy
         Action strategy = m0(move);
         Action oppResponse1 = beatenBy.get(strategy).get(0);
         Action oppResponse2 = beatenBy.get(strategy).get(1);
-    
+
         List<Action> beatOppResponse1 = beatenBy.get(oppResponse1);
         List<Action> beatOppResponse2 = beatenBy.get(oppResponse2);
-    
+
         Action commonMove = findCommonMove(beatOppResponse1, beatOppResponse2);
-    
+
         // If a common move is found, return it; otherwise, return the original move
         return (commonMove != null) ? commonMove : move;
     }
-    
 
-    private Action m2(Action move) { 
+    private Action m2(Action move) {
         Action strategy = m1(move);
         Action oppResponse1 = beatenBy.get(strategy).get(0);
         Action oppResponse2 = beatenBy.get(strategy).get(1);
-    
+
         List<Action> beatOppResponse1 = beatenBy.get(oppResponse1);
         List<Action> beatOppResponse2 = beatenBy.get(oppResponse2);
-    
+
         Action commonMove = findCommonMove(beatOppResponse1, beatOppResponse2);
-    
+
         return (commonMove != null) ? commonMove : move;
     }
 
-    private Action m3(Action move) { 
+    private Action m3(Action move) {
         Action strategy = m2(move);
         Action oppResponse1 = beatenBy.get(strategy).get(0);
         Action oppResponse2 = beatenBy.get(strategy).get(1);
-    
+
         List<Action> beatOppResponse1 = beatenBy.get(oppResponse1);
         List<Action> beatOppResponse2 = beatenBy.get(oppResponse2);
-    
+
         Action commonMove = findCommonMove(beatOppResponse1, beatOppResponse2);
-    
+
         return (commonMove != null) ? commonMove : move;
     }
 
-    private Action m4(Action move) { 
+    private Action m4(Action move) {
         Action strategy = m3(move);
         Action oppResponse1 = beatenBy.get(strategy).get(0);
         Action oppResponse2 = beatenBy.get(strategy).get(1);
-    
+
         List<Action> beatOppResponse1 = beatenBy.get(oppResponse1);
         List<Action> beatOppResponse2 = beatenBy.get(oppResponse2);
-    
+
         Action commonMove = findCommonMove(beatOppResponse1, beatOppResponse2);
-    
+
         return (commonMove != null) ? commonMove : move;
     }
 
-
-    //Strategy methods begin from here
+    // Strategy methods begin from here
     private Action randomAction() {
         Random random = new Random();
         int index = random.nextInt(Action.values().length);
@@ -262,7 +258,7 @@ public class MasterBot implements RoShamBot {
             return myMoveHistory.get(myMoveHistory.size() - 1);
         } else {
             // Handle the case when move history is empty
-            return randomAction(); 
+            return randomAction();
         }
     }
 
@@ -288,7 +284,8 @@ public class MasterBot implements RoShamBot {
 
     public Action e() {
         // Calculate the digit of 'e' corresponding to the current move number
-        BigDecimal e = new BigDecimal(Math.E, MathContext.DECIMAL128).setScale(this.getRoundsPlayed() + 1, RoundingMode.DOWN);
+        BigDecimal e = new BigDecimal(Math.E, MathContext.DECIMAL128).setScale(this.getRoundsPlayed() + 1,
+                RoundingMode.DOWN);
         int eDigit = e.remainder(BigDecimal.ONE).movePointRight(e.scale()).intValue();
 
         // Use the modulus of the 'e' digit to choose from actions
@@ -302,12 +299,12 @@ public class MasterBot implements RoShamBot {
         // Check if there are previous moves in the opponent's history
         if (!opponentMoveHistory.isEmpty()) {
             Map<Action, Integer> moveCounts = new HashMap<>();
-    
+
             // Count the frequency of each move in the opponent's history
             for (Action opponentMove : opponentMoveHistory) {
                 moveCounts.put(opponentMove, moveCounts.getOrDefault(opponentMove, 0) + 1);
             }
-    
+
             // Find the moves with the highest frequency
             List<Action> mostFrequentMoves = new ArrayList<>();
             int maxCount = 0;
@@ -321,7 +318,7 @@ public class MasterBot implements RoShamBot {
                     mostFrequentMoves.add(entry.getKey());
                 }
             }
-    
+
             // Break ties randomly
             if (!mostFrequentMoves.isEmpty()) {
                 Random random = new Random();
@@ -332,21 +329,23 @@ public class MasterBot implements RoShamBot {
         return randomAction();
     }
 
-    private Action historyMatching() { //TODO: Revisit design to improve performance
-        int[] sequenceLengths = {10,9,8,7,6,5,4,3}; //Check longest sequence downwards
+    private Action historyMatching() { // TODO: Revisit design to improve performance
+        int[] sequenceLengths = { 10, 9, 8, 7, 6, 5, 4, 3 }; // Check longest sequence downwards
         Map<List<Action>, Map<Action, Integer>> sequenceCounts = new HashMap<>();
 
         for (int length : sequenceLengths) {
             if (opponentMoveHistory.size() >= length) {
-                List<Action> lastSequence = opponentMoveHistory.subList(opponentMoveHistory.size() - length, opponentMoveHistory.size());
-                
-                // Iterate over all possible sequences of the specified length in the opponent's move history
+                List<Action> lastSequence = opponentMoveHistory.subList(opponentMoveHistory.size() - length,
+                        opponentMoveHistory.size());
+
+                // Iterate over all possible sequences of the specified length in the opponent's
+                // move history
                 for (int i = 0; i < opponentMoveHistory.size() - length; i++) {
                     List<Action> sequence = opponentMoveHistory.subList(i, i + length);
-                    
+
                     if (sequence.equals(lastSequence)) {
                         Action nextMove = opponentMoveHistory.get(i + length);
-    
+
                         // Update the count for the next move following the current sequence
                         sequenceCounts.computeIfAbsent(sequence, k -> new HashMap<>());
                         Map<Action, Integer> nextMoveCounts = sequenceCounts.get(sequence);
@@ -356,7 +355,8 @@ public class MasterBot implements RoShamBot {
             }
         }
 
-        // Naively record total number of each move occurances corresponding to some match
+        // Naively record total number of each move occurances corresponding to some
+        // match
         Map<Action, Integer> mostCommonNextMoveCounts = new HashMap<>();
         for (Map<Action, Integer> counts : sequenceCounts.values()) {
             for (Map.Entry<Action, Integer> entry : counts.entrySet()) {
@@ -365,7 +365,7 @@ public class MasterBot implements RoShamBot {
                 mostCommonNextMoveCounts.put(nextMove, mostCommonNextMoveCounts.getOrDefault(nextMove, 0) + count);
             }
         }
-        
+
         // Find the most common next move
         Action mostCommonNextMove = null;
         int maxCount = 0;
@@ -380,75 +380,72 @@ public class MasterBot implements RoShamBot {
         if (mostCommonNextMove != null) {
             return mostCommonNextMove;
         }
-    
+
         // If no history match is found, default to random move
         return randomAction();
     }
 
-    private Action pairHistory() { //TODO: Revisit design to improve performance
-        int sequenceLength = 3; // Adjust the sequence length
-    
-        if (opponentMoveHistory.size() >= sequenceLength && myMoveHistory.size() >= sequenceLength) {
-            List<Action> lastOpponentSequence = opponentMoveHistory.subList(opponentMoveHistory.size() - sequenceLength, opponentMoveHistory.size());
-            List<Action> lastMySequence = myMoveHistory.subList(myMoveHistory.size() - sequenceLength, myMoveHistory.size());
-    
-            Map<Action, Integer> nextMoveCounts = new HashMap<>();
-    
-            for (int i = 0; i <= opponentMoveHistory.size() - sequenceLength; i++) {
-                List<Action> opponentSequence = opponentMoveHistory.subList(i, i + sequenceLength);
-                List<Action> mySequence = myMoveHistory.subList(i, i + sequenceLength);
-    
-                if (opponentSequence.equals(lastOpponentSequence) && mySequence.equals(lastMySequence)) {
-                    // If the sequences match, update the count for the next move the opponent used last time
-                    int nextMoveIndex = i + sequenceLength;
-                    if (nextMoveIndex < opponentMoveHistory.size()) {
-                        Action nextMove = opponentMoveHistory.get(nextMoveIndex);
-                        nextMoveCounts.put(nextMove, nextMoveCounts.getOrDefault(nextMove, 0) + 1);
+    private Action pairHistory() {
+        // Hardcoded list of sequence lengths to check against
+        List<Integer> sequenceLengths = List.of(10, 9, 8, 7, 6, 5); // Add sequence lengths as needed
+
+        Map<Action, Integer> nextMoveCounts = new HashMap<>();
+        int maxCount = 0;
+        Action mostCommonNextMove = null;
+
+        for (Integer sequenceLength : sequenceLengths) {
+            if (opponentMoveHistory.size() >= sequenceLength && myMoveHistory.size() >= sequenceLength) {
+                List<Action> lastOpponentSequence = opponentMoveHistory
+                        .subList(opponentMoveHistory.size() - sequenceLength, opponentMoveHistory.size());
+                List<Action> lastMySequence = myMoveHistory.subList(myMoveHistory.size() - sequenceLength,
+                        myMoveHistory.size());
+
+                for (int i = 0; i <= opponentMoveHistory.size() - sequenceLength; i++) {
+                    List<Action> opponentSequence = opponentMoveHistory.subList(i, i + sequenceLength);
+                    List<Action> mySequence = myMoveHistory.subList(i, i + sequenceLength);
+
+                    if (opponentSequence.equals(lastOpponentSequence) && mySequence.equals(lastMySequence)) {
+                        int nextMoveIndex = i + sequenceLength;
+                        if (nextMoveIndex < opponentMoveHistory.size()) {
+                            Action nextMove = opponentMoveHistory.get(nextMoveIndex);
+                            nextMoveCounts.put(nextMove, nextMoveCounts.getOrDefault(nextMove, 0) + 1);
+
+                            // Update the most common next move if this one is more common
+                            int count = nextMoveCounts.get(nextMove);
+                            if (count > maxCount) {
+                                maxCount = count;
+                                mostCommonNextMove = nextMove;
+                            }
+                        }
                     }
                 }
             }
-    
-            // Find the most common next move
-            List<Action> mostCommonNextMoves = new ArrayList<>();
-            int maxCount = 0;
-    
-            for (Map.Entry<Action, Integer> entry : nextMoveCounts.entrySet()) {
-                int count = entry.getValue();
-                if (count > maxCount) {
-                    mostCommonNextMoves.clear();
-                    mostCommonNextMoves.add(entry.getKey());
-                    maxCount = count;
-                } else if (count == maxCount) {
-                    mostCommonNextMoves.add(entry.getKey());
-                }
-            }
-    
-            // Break ties randomly
-            if (!mostCommonNextMoves.isEmpty()) {
-                Random random = new Random();
-                return mostCommonNextMoves.get(random.nextInt(mostCommonNextMoves.size()));
-            }
         }
-        // If no pair history match is found, default to random move
+
+        // Randomly break ties if needed or return the most common move
+        if (mostCommonNextMove != null) {
+            return mostCommonNextMove;
+        } else {
+            // If no pair history match is found, default to random move
+            return randomAction();
+        }
+    }
+
+    private Action markovChain() { // TODO: Implement this method
         return randomAction();
     }
 
-    private Action markovChain() {  //TODO: Implement this method
-        return  randomAction(); 
-    }
-
-
-    //main function methods begin from here
+    // main function methods begin from here
     private Action findBestMove() {
         for (String strategy : strategies) {
             for (String metastrategy : metastrategies) {
-                //Store the moves recommended by each strategy-meta pair this round
+                // Store the moves recommended by each strategy-meta pair this round
                 Action botMove = getBotMove(strategy, metastrategy);
                 rememberRecommendedMove(strategy, metastrategy, botMove);
             }
         }
 
-        //Begin by playing random moves
+        // Begin by playing random moves
         if (getRoundsPlayed() < 5) {
             return randomAction();
         }
@@ -466,7 +463,7 @@ public class MasterBot implements RoShamBot {
                     maxScore = score;
                     bestStrategy = strategy;
                     bestMeta = metastrategy;
-                } else if (score == maxScore) { //TODO: Consider better implementation
+                } else if (score == maxScore) { // TODO: Consider better implementation
                     // Break ties randomly
                     Random random = new Random();
                     if (random.nextBoolean()) {
@@ -487,13 +484,13 @@ public class MasterBot implements RoShamBot {
 
     @Override
     public Action getNextMove(Action lastOpponentMove) {
- 
+
         this.lastOpponentMove = lastOpponentMove;
         if (getRoundsPlayed() != 0) {
             updateOpponentHistory(lastOpponentMove);
             updateScoreTable();
         }
-        
+
         Action nextMove = findBestMove();
         updateMyHistory(nextMove);
 
