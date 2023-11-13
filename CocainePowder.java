@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.ArrayList;
 
-public class MasterBot implements RoShamBot {
+public class CocainePowder implements RoShamBot {
 
     // Instance variables to keep track of
     public int consecutiveLosses;
@@ -45,7 +45,7 @@ public class MasterBot implements RoShamBot {
         beatenBy.put(Action.SPOCK, Arrays.asList(Action.PAPER, Action.LIZARD));
     }
 
-    public MasterBot() {
+    public CocainePowder() {
         consecutiveLosses = 0;
 
         botMoveHistory = new ArrayList<>();
